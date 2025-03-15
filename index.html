@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Membership Fee Receipt Generator</title>
-</head>
-<body>
-    <div class = 'container'>
-        <h2>Coding Club Membership Fee Payment</h2>
-        <form id="paymentForm" action="process_receipt.php" method="POST">
-            <label for="name">First Name:</label>
-            <input type="text" name="surname" id="surname" required>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Coding Club Membership Fee Payment</h2>
+      <form id="paymentForm" action="process_receipt.php" method="POST">
+        <label for="name">First Name:</label>
+        <input type="text" name="name" id="name" required />
 
-            <label for="surname">Surname:</label>
-            <input type="text" name="surname" id="surname" required>
+        <label for="surname">Surname:</label>
+        <input type="text" name="surname" id="surname" required />
 
-            <label for="studentNumber">Student Number:</label>
-            <input type="text" name="studentNumber" id="studentNumber" required>
+        <label for="studentNumber">Student Number:</label>
+        <input type="text" name="studentNumber" id="studentNumber" required />
 
-            <label for="phoneNumber">Phone number:</label>
-            <input type="text" name="phoneNumber" id="phoneNumber" required>
+        <label for="phoneNumber">Phone number:</label>
+        <input type="text" name="phoneNumber" id="phoneNumber" required />
 
-            <label for="amount">Amount(R):</label>
-            <input type="number" name="amount" id="amount" required>
+        <label for="amount">Amount(R):</label>
+        <input type="number" name="amount" id="amount" required />
 
-            <label for="date">Date:</label>
-            <input type="date" name="date" id="date" required>
+        <label for="date">Date:</label>
+        <input type="date" name="date" id="date" required />
 
-            <label for="execMember">Received by (Exec Member):</label>
-            <input type="text" name="execMember" id="execMember" required>
+        <label for="execMember">Received by (Exec Member):</label>
+        <input type="text" name="execMember" id="execMember" required />
 
-            <button type="submit">Generate Receipt</button>
-        </form>
-    </div>    
-</body>
+        <button type="submit">Generate Receipt</button>
+      </form>
+    </div>
+  </body>
 </html>
