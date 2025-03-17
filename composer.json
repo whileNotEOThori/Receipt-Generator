@@ -1,0 +1,21 @@
+{
+    "name": "thoriso/receipt-generator",
+    "description": "A receipt generator for cash payments of membership fee for the Coding Club",
+    "type": "project",
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "phpmailer/phpmailer": "^6.9",
+        "twilio/sdk": "^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Thoriso\\ReceiptGenerator\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "whileNotEOThori",
+            "email": "140858944+whileNotEOThori@users.noreply.github.com"
+        }
+    ]
+}
