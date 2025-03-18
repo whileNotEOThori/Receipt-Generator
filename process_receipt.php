@@ -43,8 +43,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
         die("Execution failed: " . $stmt->error);
     }
         
-    // echo "Receipt generated and sent successfully.";
+    // Generate PDF receipt
+    $pdf = new \FPDF();
+    $pdf->AddPage();
+
+    // Add Coding Club logo (top-left)
+    $pdf->Image('logo.jpg', 10, 10, 30);
+
+    // Title
+    $pdf->SetFont('Arial', 'B', 16);
+    $pdf->Cell(190, 10, 'Coding Club Membership Receipt', 0, 1, 'C');
+    $pdf->Ln(20);
+
+    // Receipt Details
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(190, 10, "Receipt Number: " . $receipt_number, 0, 1);
+    $pdf->Cell(190, 10, "Name: " . $name . " " . $surname, 0, 1);
+    $pdf->Cell(190, 10, "Student Number: " . $student_number, 0, 1);
+    $pdf->Cell(190, 10, "Amount Paid: R" . $amount, 0, 1);
+    $qrCodeYPos = $pdf->GetY();
+    $pdf->Cell(190, 10, "Received by: " . $exec_member, 0, 1);
+    $pdf->Ln(10);
+    $pdf->Cell(190, 10, "Thank you for joining the Coding Club!", 0, 1, 'L');
+    $pdf->Cell(0, 10, "Scan the QR code to upload your receipt to the form.", 0, 1, 'L');
+
+    // Add QR Code (bottom-right)
+    $pdf->Image('qr_code.png', 150,$qrCodeYPos , 40);
+
+    // Output PDF
+    $pdf->Output('D', "receipt_$receipt_number.pdf");
+
     echo "Data added into database";
+    echo "Receipt generated successfully.";
+    // echo "Receipt generated and sent successfully.";
     
     $stmt->close();
     $conn->close();
