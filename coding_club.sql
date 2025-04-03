@@ -27,3 +27,5 @@ CREATE TABLE testing(
 );
 
 select * from testing;
+
+delete from coding_club.testing where (id  = 51);

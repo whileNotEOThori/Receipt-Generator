@@ -1,8 +1,15 @@
 <?php
 //load .env file
 require __DIR__ .'/vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////DATABASE SECTION////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Database connection (update with your credentials)
 $host = $_ENV['DB_HOST'];
@@ -22,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $student_number = $_POST['studentNumber'];
     $amount = $_POST['amount'];
     $exec_member = $_POST['execMember'];
+    $email_address = $student_number . "@vossie.net";
  
     // Generate unique receipt number
     $count_query = $conn->prepare("SELECT COUNT(*) AS count FROM testing");
@@ -42,6 +50,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     if (!$stmt->execute()) {
         die("Execution failed: " . $stmt->error);
     }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////PDF SECTION////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
     // Generate PDF receipt
     $pdf = new \FPDF();
@@ -71,11 +83,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $pdf->Image('qr_code.png', 150,$qrCodeYPos , 40);
 
     // Output PDF
-    $pdf->Output('D', "receipt_$receipt_number.pdf");
+    // $pdf->Output('D', "receipt_$receipt_number.pdf");
+    $pdf->Output('F', "receipts/receipt_$receipt_number.pdf");
 
-    echo "Data added into database";
-    echo "Receipt generated successfully.";
-    // echo "Receipt generated and sent successfully.";
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////EMAIL SECTION////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    $mail = new PHPMailer(true);
+    $mail->isSMTP();
+    $mail->SMTPAuth = true;
+    $mail->Host = $_ENV['EMAIL_HOST'];
+    $mail->Username = $_ENV['EMAIL_USERNAME'];
+    $mail->Password = $_ENV['EMAIL_PASSWORD'];
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
+    
+    $mail->setFrom($_ENV['EMAIL_ADDRESS'], 'Coding Club');
+    $mail->addAddress($_ENV['TEMP_EMAIL']);
+    $mail->addAttachment("receipts/receipt_$receipt_number.pdf");
+    $mail->addReplyTo($_ENV['EMAIL_ADDRESS'],'Coding Club');
+
+    $email_body = "Dear $name $surname,<br/>Your payment of R$amount has been received. Attached is your receipt.<br/>Thank you for joining the Coding Club!<br/><br/>Kind regards,<br/>Treasurer - Coding Club";
+   
+    $mail->IsHTML(true);
+    $mail->Subject = "Coding Club Membership Fee Payment Receipt";
+    $mail->Body = $email_body;
+    $mail->AltBody = $email_body;
+
+   if (!$mail->send())
+    {
+        echo "Email not sent<br/>";
+    }
+    else
+    {
+        echo "Email sent<br/>";
+    }
+
+    echo "Data added into database<br/>";
+    echo "Receipt generated successfully.<br/>";
+    echo "Receipt generated and sent successfully.<br/>";
     
     $stmt->close();
     $conn->close();
