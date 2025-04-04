@@ -1,3 +1,5 @@
 /vendor/
 /receipts/
 .env
+credentials.json
+upload_to_drive.php

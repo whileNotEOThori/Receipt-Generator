@@ -1,9 +1,11 @@
 <?php
 //load .env file
 require __DIR__ .'/vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
@@ -32,13 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $email_address = $student_number . "@vossie.net";
  
     // Generate unique receipt number
-    $count_query = $conn->prepare("SELECT COUNT(*) AS count FROM testing");
+    $count_query = $conn->prepare("SELECT COUNT(*) AS count FROM receipts");
     $count_query->execute();
     $result = $count_query->get_result();
     $row = $result->fetch_assoc();
     $receipt_number = "CC" . date("Y") . str_pad($row['count'] + 1, 4, "0", STR_PAD_LEFT);
 
-    $stmt = $conn->prepare("INSERT INTO testing (receipt_num, name, surname, phone_num, student_num, amount, exec_member) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO receipts (receipt_num, name, surname, phone_num, student_num, amount, exec_member) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
     // Check for SQL errors
     if (!$stmt) {
@@ -72,6 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $pdf->Cell(190, 10, "Receipt Number: " . $receipt_number, 0, 1);
     $pdf->Cell(190, 10, "Name: " . $name . " " . $surname, 0, 1);
     $pdf->Cell(190, 10, "Student Number: " . $student_number, 0, 1);
+    $pdf->Cell(190, 10, "Phone Number: " . $phone, 0, 1);
+    $pdf->Cell(190, 10, "Date: " . date("D") . ", " . date("d") . " " . date("M") . " " . date("Y"), 0, 1);
     $pdf->Cell(190, 10, "Amount Paid: R" . $amount, 0, 1);
     $qrCodeYPos = $pdf->GetY();
     $pdf->Cell(190, 10, "Received by: " . $exec_member, 0, 1);
@@ -100,11 +104,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $mail->Port = 587;
     
     $mail->setFrom($_ENV['EMAIL_ADDRESS'], 'Coding Club');
-    $mail->addAddress($_ENV['TEMP_EMAIL']);
+    $mail->addAddress($email_address);
     $mail->addAttachment("receipts/receipt_$receipt_number.pdf");
     $mail->addReplyTo($_ENV['EMAIL_ADDRESS'],'Coding Club');
 
-    $email_body = "Dear $name $surname,<br/>Your payment of R$amount has been received. Attached is your receipt.<br/>Thank you for joining the Coding Club!<br/><br/>Kind regards,<br/>Treasurer - Coding Club";
+    $form_link = $_ENV['FORM_LINK'];
+    $email_body = "Dear $name $surname,<br/>Your membership fee payment of R$amount has been received. Attached is your receipt. Please follow the link or scan the QR code on the receipt to complete the Google form where you will upload this receipt as proof of payment. Link: $form_link <br/>Thank you for joining the Coding Club!<br/><br/>Kind regards,<br/>Treasurer - Coding Club";
    
     $mail->IsHTML(true);
     $mail->Subject = "Coding Club Membership Fee Payment Receipt";
@@ -119,9 +124,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     {
         echo "Email sent<br/>";
     }
-
+   
     echo "Data added into database<br/>";
-    echo "Receipt generated successfully.<br/>";
     echo "Receipt generated and sent successfully.<br/>";
     
     $stmt->close();
